@@ -18,5 +18,17 @@ namespace StockOne.API.Mapper
                 MarketCap = stock.MarketCap
             };
         }
+        public static Stock CreateDTO(this CreateStockDTO stock) 
+        { 
+            return new Stock
+            {
+                CompanyName = stock.CompanyName,
+                Symbol = stock.Symbol,
+                Purchase = stock.Purchase,
+                LastDiv = stock.LastDiv,
+                Industry = stock.Industry,
+                MarketCap = stock.MarketCap
+            };
+        }
     }
 }
