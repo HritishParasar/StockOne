@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using StockOne.API.Data;
 using StockOne.API.Mapper;
 using StockOne.API.Model.DTOs;
+using StockOne.API.Repository;
 
 namespace StockOne.API.Controllers
 {
@@ -11,16 +12,18 @@ namespace StockOne.API.Controllers
     public class StockController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-        public StockController(ApplicationDbContext context)
+        private readonly IStockRepository stockRepository;
+
+        public StockController(IStockRepository stockRepository)
         {
-            _context = context;
+            this.stockRepository = stockRepository;
         }
         [HttpGet("GetAllStocks")]
         public async Task<IActionResult> GetAllStocks()
         {
             try
             {
-                var stocks = _context.Stocks.ToList().Select(x => x.MapToDto());
+                var stocks = await stockRepository.GetAllStocksAsync();
                 return Ok(stocks);
             }
             catch (Exception ex)
@@ -34,12 +37,12 @@ namespace StockOne.API.Controllers
         {
             try
             {
-                var find = await _context.Stocks.FindAsync(id);
+                var find = await stockRepository.GetStockByIdAsync(id);
                 if (find is null)
                 {
                     return NotFound("Stock not found");
                 }
-                return Ok(find.MapToDto());
+                return Ok(find);
             }
             catch (Exception ex)
             {
@@ -51,9 +54,7 @@ namespace StockOne.API.Controllers
         {
             try
             {
-                var stockmModel = stockDTO.CreateDTO();
-                _context.Stocks.Add(stockmModel);
-                await _context.SaveChangesAsync();
+                await stockRepository.AddStockAsync(stockDTO);
                 return Ok("Stock added successfully");
             }
             catch (Exception ex)
@@ -66,20 +67,7 @@ namespace StockOne.API.Controllers
         {
             try
             {
-                var existingStock = _context.Stocks.Find(Id);
-                if (existingStock is null)
-                {
-                    return NotFound("Stock not found");
-                }
-                existingStock.CompanyName = stockDTO.CompanyName;
-                existingStock.Symbol = stockDTO.Symbol;
-                existingStock.Purchase = stockDTO.Purchase;
-                existingStock.LastDiv = stockDTO.LastDiv;
-                existingStock.Industry = stockDTO.Industry;
-                existingStock.MarketCap = stockDTO.MarketCap;
-
-                _context.Stocks.Update(existingStock);
-                await _context.SaveChangesAsync();
+                await stockRepository.UpdateStockAsync(Id, stockDTO);
                 return Ok("Stock updated successfully");
             }
             catch (Exception ex)
@@ -92,13 +80,7 @@ namespace StockOne.API.Controllers
         {
             try
             {
-                var existingStock = _context.Stocks.Find(Id);
-                if (existingStock is null)
-                {
-                    return NotFound("Stock not found");
-                }
-                _context.Stocks.Remove(existingStock);
-                await _context.SaveChangesAsync();
+                await stockRepository.DeleteStockAsync(Id);
                 return Ok("Stock deleted successfully");
             }
             catch (Exception ex)
