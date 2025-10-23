@@ -1,4 +1,5 @@
-﻿using StockOne.API.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using StockOne.API.Data;
 using StockOne.API.Mapper;
 using StockOne.API.Model.DTOs;
 
@@ -31,7 +32,7 @@ namespace StockOne.API.Repository
 
         public async Task<List<StockDTO>> GetAllStocksAsync()
         {
-            var stocks = dbContext.Stocks.Select(s => s.MapToDto()).ToList();
+            var stocks = dbContext.Stocks.Include(c => c.Comments).Select(s => s.MapToDto()).ToList();
             return stocks;
         }
 

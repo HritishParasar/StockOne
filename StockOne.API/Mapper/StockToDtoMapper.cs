@@ -15,7 +15,8 @@ namespace StockOne.API.Mapper
                 Purchase = stock.Purchase,
                 LastDiv = stock.LastDiv,
                 Industry = stock.Industry,
-                MarketCap = stock.MarketCap
+                MarketCap = stock.MarketCap,
+                commentDTOs = stock.Comments?.Select(c => c.MapToCommentDto()).ToList()
             };
         }
         public static Stock CreateDTO(this CreateStockDTO stock) 
