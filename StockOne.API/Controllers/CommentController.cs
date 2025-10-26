@@ -27,7 +27,7 @@ namespace StockOne.API.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-        [HttpGet("getCommentById/{id}")]
+        [HttpGet("getCommentById/{id:int}")]
         public async Task<IActionResult> GetCommentById(int id)
         {
             try
@@ -53,7 +53,7 @@ namespace StockOne.API.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-        [HttpPut("updateComment/{id}")]
+        [HttpPut("updateComment/{id:int}")]
         public async Task<IActionResult> UpdateComment(int id, [FromBody] Model.DTOs.CommentDTO comment)
         {
             try
@@ -66,7 +66,7 @@ namespace StockOne.API.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-        [HttpDelete("deleteComment/{id}")]
+        [HttpDelete("deleteComment/{id:int}")]
         public async Task<IActionResult> DeleteComment(int id)
         {
             try

@@ -32,7 +32,7 @@ namespace StockOne.API.Controllers
             }
 
         }
-        [HttpGet("GetStockById/{id}")]
+        [HttpGet("GetStockById/{id:int}")]
         public async Task<IActionResult> GetStocksByID(int id)
         {
             try
@@ -62,7 +62,7 @@ namespace StockOne.API.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
-        [HttpPut("UpdateStock/{Id}")]
+        [HttpPut("UpdateStock/{Id:int}")]
         public async Task<IActionResult> UpdateStock(int Id, [FromBody] CreateStockDTO stockDTO)
         {
             try
@@ -75,7 +75,7 @@ namespace StockOne.API.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
-        [HttpDelete("DeleteStock/{Id}")]
+        [HttpDelete("DeleteStock/{Id:int}")]
         public async Task<IActionResult> DeleteStock(int Id)
         {
             try
