@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using StockOne.API.Data;
+using StockOne.API.FilteringSorting;
 using StockOne.API.Mapper;
+using StockOne.API.Model;
 using StockOne.API.Model.DTOs;
 
 namespace StockOne.API.Repository
@@ -30,10 +32,43 @@ namespace StockOne.API.Repository
             }
         }
 
-        public async Task<List<StockDTO>> GetAllStocksAsync()
+        public async Task<List<Stock>> GetAllStocksAsync(QueryObject query)
         {
-            var stocks = dbContext.Stocks.Include(c => c.Comments).Select(s => s.MapToDto()).ToList();
-            return stocks;
+            var stocks = dbContext.Stocks.Include(c => c.Comments).AsQueryable();
+            if (!string.IsNullOrEmpty(query.Symbol))
+            {
+                stocks = stocks.Where(s => s.Symbol.Contains(query.Symbol));
+            }
+            if(!string.IsNullOrEmpty(query.CompanyName))
+            {
+                stocks = stocks.Where(s => s.CompanyName.Contains(query.CompanyName));
+            }
+            if (!string.IsNullOrEmpty(query.SortBy))
+            {
+                switch(query.SortBy.ToLower())
+                {
+                    case "symbol":
+                        stocks = query.IsSortAscending ? stocks.OrderBy(s => s.Symbol) : stocks.OrderByDescending(s => s.Symbol);
+                        break;
+                    case "companyname":
+                        stocks = query.IsSortAscending ? stocks.OrderBy(s => s.CompanyName) : stocks.OrderByDescending(s => s.CompanyName);
+                        break;
+                    case "purchase":
+                        stocks = query.IsSortAscending ? stocks.OrderBy(s => s.Purchase) : stocks.OrderByDescending(s => s.Purchase);
+                        break;
+                    case "marketcap":
+                        stocks = query.IsSortAscending ? stocks.OrderBy(s => s.MarketCap) : stocks.OrderByDescending(s => s.MarketCap);
+                        break;
+                    default:
+                        stocks = stocks.OrderBy(s => s.Id);
+                        break;
+                }
+            }
+
+            var skip = (query.PageNumber - 1) * query.PageSize;
+            stocks = stocks.Skip(skip).Take(query.PageSize);
+
+            return await stocks.ToListAsync();
         }
 
         public async Task<StockDTO> GetStockByIdAsync(int id)

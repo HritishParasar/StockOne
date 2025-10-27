@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using StockOne.API.Data;
+using StockOne.API.FilteringSorting;
 using StockOne.API.Mapper;
 using StockOne.API.Model.DTOs;
 using StockOne.API.Repository;
@@ -11,7 +12,6 @@ namespace StockOne.API.Controllers
     [ApiController]
     public class StockController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
         private readonly IStockRepository stockRepository;
 
         public StockController(IStockRepository stockRepository)
@@ -19,12 +19,13 @@ namespace StockOne.API.Controllers
             this.stockRepository = stockRepository;
         }
         [HttpGet("GetAllStocks")]
-        public async Task<IActionResult> GetAllStocks()
+        public async Task<IActionResult> GetAllStocks([FromQuery] QueryObject query)
         {
             try
             {
-                var stocks = await stockRepository.GetAllStocksAsync();
-                return Ok(stocks);
+                var stocks = await stockRepository.GetAllStocksAsync(query);
+                var stocksDto = stocks.Select(s => s.MapToDto());
+                return Ok(stocksDto);
             }
             catch (Exception ex)
             {
